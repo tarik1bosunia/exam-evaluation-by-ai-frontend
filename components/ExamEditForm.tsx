@@ -77,7 +77,6 @@ export default function ExamEditForm({ exam, onUpdateComplete, onCancel }: ExamE
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Reuse the same step components as ExamCreation */}
         {step === 1 && <ExamDetailsStep />}
-        {/* You might need to adjust QuestionsStep if it doesn't already handle useFieldArray correctly */}
         {step === 2 && <QuestionsStep fields={fields} append={append} remove={remove} />}
         {step === 3 && <ReviewStep examData={getValues()} />}
 

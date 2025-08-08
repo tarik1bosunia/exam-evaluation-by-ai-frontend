@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { FileText, AlertCircle, ArrowRight, HelpCircle, Calendar } from "lucide-react";
+import { FileText, AlertCircle, ArrowRight, HelpCircle, Calendar, Edit } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+
 
 const ExamList = () => {
     const { data: exams, error, isLoading } = useGetExamsQuery();
@@ -63,30 +63,28 @@ const ExamList = () => {
     return (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {exams.map((exam) => (
-                <Link key={exam.id} href={`/exams/${exam.id}`} className="flex">
-                    <Card className="flex flex-col w-full hover:border-primary transition-colors duration-200 hover:shadow-lg">
-                        <CardHeader>
-                            <CardTitle className="line-clamp-2">{exam.title}</CardTitle>
-                            <CardDescription>{exam.subject}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                            <div className="flex items-center text-sm text-muted-foreground mb-2">
-                                <HelpCircle className="w-4 h-4 mr-2" />
-                                {exam.questions.length} Questions
-                            </div>
-                            <div className="flex items-center text-sm text-muted-foreground">
-                                <Calendar className="w-4 h-4 mr-2" />
-                                Created on {format(new Date(exam.created_at), "PPP")}
-                            </div>
-                        </CardContent>
-                        <CardFooter className="flex justify-end">
-                             <div className="flex items-center text-sm font-medium text-primary">
+                <Card key={exam.id} className="flex flex-col">
+                    <CardHeader>
+                        <CardTitle>{exam.title}</CardTitle>
+                        <CardDescription>{exam.subject}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                        <p className="text-sm text-muted-foreground line-clamp-3">{exam.instructions}</p>
+                    </CardContent>
+                    <div className="p-6 pt-0 flex justify-between items-center">
+                        <Link href={`/exams/${exam.id}`} passHref>
+                            <Button variant="outline" size="sm">
                                 View Details
                                 <ArrowRight className="w-4 h-4 ml-2" />
-                            </div>
-                        </CardFooter>
-                    </Card>
-                </Link>
+                            </Button>
+                        </Link>
+                        <Link href={`/exams/${exam.id}/edit`} passHref>
+                            <Button variant="ghost" size="icon">
+                                <Edit className="w-4 h-4" />
+                            </Button>
+                        </Link>
+                    </div>
+                </Card>
             ))}
         </div>
     );

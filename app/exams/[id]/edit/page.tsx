@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useGetExamByIdQuery } from '@/lib/redux/api/examApi';
-import ExamEditForm from '@/components/ExamEditForm'; // We will create this next
+import ExamEditForm from '@/components/ExamEditForm'; 
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -13,7 +13,7 @@ export default function EditExamPage() {
     const examId = Number(params.id);
 
     const { data: exam, isLoading, isError } = useGetExamByIdQuery(examId, {
-        skip: !examId, // Don't run query if ID is not available
+        skip: !examId, 
     });
 
     if (isLoading) {
@@ -41,7 +41,6 @@ export default function EditExamPage() {
     }
 
     const handleUpdateComplete = () => {
-        // Navigate back to the exam list after successful update
         router.push('/exams');
     };
 

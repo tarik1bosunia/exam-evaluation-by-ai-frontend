@@ -1,31 +1,6 @@
 import { apiSlice } from "./apiSlice";
 
-interface Question {
-    id: number;
-    text: string;
-    ideal_answer: string;
-    instructions?: string;
-    mark: number;
-    created_at: string;
-    updated_at: string;
-}
-
-interface Exam {
-    id: number;
-    title: string;
-    subject: string;
-    instructions: string;
-    questions: Question[];
-    created_at: string;
-    updated_at: string;
-}
-
-interface ExamData {
-    title: string;
-    subject: string;
-    instructions: string;
-    questions: Omit<Question, "id" | "created_at" | "updated_at">[];
-}
+import { Exam, ExamData } from "@/lib/types";
 
 
 export const examApi = apiSlice.injectEndpoints({
@@ -54,7 +29,20 @@ export const examApi = apiSlice.injectEndpoints({
             query: (id) => `/core/exams/${id}/`,
             providesTags: (result, error, id) => [{ type: 'Exam', id }],
         }),
+
+        updateExam: builder.mutation<Exam, { id: number; examData: Partial<ExamData> }>({
+            query: ({ id, examData }) => ({
+                url: `/core/exams/${id}/`,
+                method: 'PUT', // or 'PATCH' if you allow partial updates
+                body: examData,
+            }),
+            // Invalidate the specific exam cache and the list cache
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Exam', id },
+                { type: 'Exam', id: 'LIST' },
+            ],
+        }),
     }),
 });
 
-export const { useCreateExamMutation, useGetExamsQuery, useGetExamByIdQuery } = examApi;
+export const { useCreateExamMutation, useGetExamsQuery, useGetExamByIdQuery, useUpdateExamMutation } = examApi;

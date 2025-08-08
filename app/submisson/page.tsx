@@ -5,11 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useUploadPdfMutation } from '@/lib/redux/api/submissonApi';
 
 export default function SubmissionPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
+  const [uploadPdf, { isLoading }] = useUploadPdfMutation();
 
   const handleFileProcessing = useCallback((file: File | undefined) => {
     if (file && file.type === 'application/pdf') {
@@ -55,16 +57,20 @@ export default function SubmissionPage() {
     handleFileProcessing(event.target.files?.[0]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedFile) {
-      // Here you would typically handle the file upload, e.g., send it to an API
-      console.log("Submitting file:", selectedFile.name);
-      setMessage({ type: 'info', text: `Uploading "${selectedFile.name}"... (This is a placeholder action)` });
-      // Simulate upload success
-      setTimeout(() => {
+      setMessage({ type: 'info', text: `Uploading "${selectedFile.name}"...` });
+      const formData = new FormData();
+      formData.append('pdf_file', selectedFile);
+      formData.append('title', selectedFile.name);
+
+      try {
+        await uploadPdf(formData).unwrap();
         setMessage({ type: 'success', text: `"${selectedFile.name}" has been uploaded successfully.` });
-        setSelectedFile(null); // Clear selected file after successful upload
-      }, 2000);
+        setSelectedFile(null);
+      } catch (error) {
+        setMessage({ type: 'error', text: 'Failed to upload file. Please try again.' });
+      }
     } else {
       setMessage({ type: 'error', text: "Please select a PDF file to submit." });
     }
@@ -125,7 +131,7 @@ export default function SubmissionPage() {
           <Button
             onClick={handleSubmit}
             className="w-full mt-6"
-            disabled={!selectedFile}
+            disabled={!selectedFile || isLoading}
           >
             Submit PDF
           </Button>

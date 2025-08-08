@@ -4,7 +4,7 @@ import { baseQuery } from './baseQuery';
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQuery,
-  tagTypes: ['FileUpload'],
+  tagTypes: ['FileUpload', 'Exam'],
   endpoints: () => ({}),
 });
 

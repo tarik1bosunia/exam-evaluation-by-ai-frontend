@@ -1,13 +1,70 @@
+# Frontend Guide: Deleting an Exam
+
+This guide outlines the steps to implement the "delete exam" functionality on the frontend.
+
+## 1. API Layer: Add `deleteExam` Mutation
+
+First, we need to add a `deleteExam` mutation to our Redux Toolkit Query API slice. This will allow us to send a `DELETE` request to the server.
+
+### `lib/redux/api/examApi.ts`
+
+```typescript
+import { apiSlice } from "./apiSlice";
+import { Exam, ExamData } from "@/lib/types";
+
+export const examApi = apiSlice.injectEndpoints({
+    endpoints: (builder) => ({
+        // ... existing endpoints
+        updateExam: builder.mutation<Exam, { id: number; examData: Partial<ExamData> }>({
+            query: ({ id, examData }) => ({
+                url: `/core/exams/${id}/`,
+                method: 'PUT',
+                body: examData,
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Exam', id },
+                { type: 'Exam', id: 'LIST' },
+            ],
+        }),
+
+        deleteExam: builder.mutation<{ success: boolean; id: number }, number>({
+            query(id) {
+                return {
+                    url: `/core/exams/${id}/`,
+                    method: 'DELETE',
+                }
+            },
+            invalidatesTags: (result, error, id) => [{ type: 'Exam', id: 'LIST' }],
+        }),
+    }),
+});
+
+export const { useCreateExamMutation, useGetExamsQuery, useGetExamByIdQuery, useUpdateExamMutation, useDeleteExamMutation } = examApi;
+```
+
+**Changes:**
+
+- Added a `deleteExam` mutation to the `examApi`.
+- It takes the `id` of the exam to be deleted.
+- It sends a `DELETE` request to the `/core/exams/{id}/` endpoint.
+- It invalidates the `Exam` list cache upon successful deletion, which will trigger a refetch of the exam list.
+- Exported the `useDeleteExamMutation` hook.
+
+## 2. UI Layer: Add Delete Button and Confirmation
+
+Next, we'll add a delete button to the `ExamList` component. To prevent accidental deletions, we'll use an `AlertDialog` to confirm the user's action.
+
+### `components/ExamList.tsx`
+
+```typescript
 "use client";
 
-import { useDeleteExamMutation, useGetExamsQuery } from "@/lib/redux/api/examApi";
+import { useState } from "react";
+import { useGetExamsQuery, useDeleteExamMutation } from "@/lib/redux/api/examApi";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { FileText, AlertCircle, ArrowRight, HelpCircle, Calendar, Edit, Trash2 } from "lucide-react";
-import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -19,12 +76,13 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { FileText, AlertCircle, ArrowRight, Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 
 const ExamList = () => {
     const { data: exams, error, isLoading } = useGetExamsQuery();
-
-
     const [deleteExam, { isLoading: isDeleting }] = useDeleteExamMutation();
     const { toast } = useToast();
 
@@ -44,53 +102,7 @@ const ExamList = () => {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <Card key={i}>
-                        <CardHeader>
-                            <Skeleton className="h-6 w-3/4" />
-                            <Skeleton className="h-4 w-1/2" />
-                        </CardHeader>
-                        <CardContent>
-                            <Skeleton className="h-4 w-full mb-2" />
-                            <Skeleton className="h-4 w-full" />
-                            <div className="flex justify-end mt-4">
-                                <Skeleton className="h-10 w-24" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                    Failed to load exams. Please try again later.
-                </AlertDescription>
-            </Alert>
-        );
-    }
-
-    if (!exams || exams.length === 0) {
-        return (
-            <div className="text-center py-16">
-                <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-medium">No exams found</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Get started by creating a new exam.
-                </p>
-                {/* Optional: Add a button to create an exam */}
-            </div>
-        );
-    }
-
+    // ... (isLoading, error, no exams states remain the same)
 
     return (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -150,3 +162,14 @@ const ExamList = () => {
 };
 
 export default ExamList;
+```
+
+**Changes:**
+
+- Imported `useState`, `useDeleteExamMutation`, `useToast`, `AlertDialog` components, and the `Trash2` icon.
+- Initialized the `useDeleteExamMutation` hook.
+- Created a `handleDelete` function that calls the `deleteExam` mutation and shows a toast notification on success or failure.
+- Wrapped the delete button in an `AlertDialog` component to show a confirmation dialog.
+- The "Delete" button in the dialog calls the `handleDelete` function.
+
+This completes the implementation of the delete exam feature.

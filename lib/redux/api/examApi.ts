@@ -42,7 +42,16 @@ export const examApi = apiSlice.injectEndpoints({
                 { type: 'Exam', id: 'LIST' },
             ],
         }),
+        deleteExam: builder.mutation<{ success: boolean; id: number }, number>({
+            query(id) {
+                return {
+                    url: `/core/exams/${id}/`,
+                    method: 'DELETE',
+                }
+            },
+            invalidatesTags: (result, error, id) => [{ type: 'Exam', id: 'LIST' }],
+        }),
     }),
 });
 
-export const { useCreateExamMutation, useGetExamsQuery, useGetExamByIdQuery, useUpdateExamMutation } = examApi;
+export const { useCreateExamMutation, useGetExamsQuery, useGetExamByIdQuery, useUpdateExamMutation, useDeleteExamMutation } = examApi;

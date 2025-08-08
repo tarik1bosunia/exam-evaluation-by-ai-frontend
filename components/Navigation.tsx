@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, GraduationCap } from "lucide-react";
+import { Brain, GraduationCap, BookOpen } from "lucide-react";
+import Link from "next/link";
 
 const Navigation = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
               <Brain className="w-6 h-6 text-primary-foreground" />
             </div>
@@ -17,18 +18,18 @@ const Navigation = () => {
                 AI Grading Platform
               </Badge>
             </div>
-          </div>
+          </Link>
           
           <div className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Features
-            </a>
-            <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              How It Works
-            </a>
-            <a href="#benefits" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            </Link>
+            <Link href="/exams" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Exams
+            </Link>
+            <Link href="/#benefits" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Benefits
-            </a>
+            </Link>
           </div>
           
           <div className="flex items-center gap-3">
@@ -36,9 +37,12 @@ const Navigation = () => {
               <GraduationCap className="w-4 h-4 mr-2" />
               Demo
             </Button>
-            <Button variant="default" size="sm">
-              Get Started
-            </Button>
+            <Link href="/?view=create" passHref>
+                <Button variant="default" size="sm">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Create Exam
+                </Button>
+            </Link>
           </div>
         </div>
       </div>

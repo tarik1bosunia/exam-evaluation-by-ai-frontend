@@ -38,7 +38,23 @@ export const examApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Exam'],
         }),
+
+        getExams: builder.query<Exam[], void>({
+            query: () => '/core/exams/',
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.map(({ id }) => ({ type: 'Exam' as const, id })),
+                        { type: 'Exam', id: 'LIST' },
+                    ]
+                    : [{ type: 'Exam', id: 'LIST' }],
+        }),
+
+        getExamById: builder.query<Exam, number>({
+            query: (id) => `/core/exams/${id}/`,
+            providesTags: (result, error, id) => [{ type: 'Exam', id }],
+        }),
     }),
 });
 
-export const { useCreateExamMutation } = examApi;
+export const { useCreateExamMutation, useGetExamsQuery, useGetExamByIdQuery } = examApi;
